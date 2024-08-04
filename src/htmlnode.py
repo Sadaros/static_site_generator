@@ -15,7 +15,7 @@ class HTMLNode:
         self.children = children
         self.props = props
 
-    def __eq__(self, target: "HTMLNode") -> bool:
+    def __eq__(self, target: "HTMLNode") -> bool:  # type: ignore
         return (
             self.tag == target.tag
             and self.value == target.value
@@ -26,7 +26,7 @@ class HTMLNode:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({self.tag}, "{self.value}", {self.children}, {self.props})'
 
-    def to_html(self) -> Exception:
+    def to_html(self) -> Exception | str:
         raise NotImplementedError
 
     def props_to_html(self) -> str:
