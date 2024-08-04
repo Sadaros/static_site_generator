@@ -53,7 +53,15 @@ class TestLeafNode(unittest.TestCase):
         test_case = ' href="google.com" target="_blank"'
         self.assertEqual(node.props_to_html(), test_case)
 
-    def 
+    def test_props_empty(self):
+        node = LeafNode("no props")
+        test_case = ""
+        self.assertEqual(node.props_to_html(), test_case)
+
+    def test_to_html(self):
+        node = LeafNode("TestString", "h1", {"class": "heading"})
+        test_case = '<h1 class="heading">TestString</h1>'
+        self.assertEqual(node.to_html(), test_case)
 
 
 if __name__ == "__main__":
