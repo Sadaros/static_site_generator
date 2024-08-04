@@ -63,6 +63,18 @@ class TestLeafNode(unittest.TestCase):
         test_case = '<h1 class="heading">TestString</h1>'
         self.assertEqual(node.to_html(), test_case)
 
+    def test_to_html_exception(self):
+        node = LeafNode(None)  # type: ignore
+        self.assertRaises(ValueError, node.to_html)
+
+    def test_to_html_no_props(self):
+        node = LeafNode("No props", "p")
+
+    def test_to_html_no_tag(self):
+        node = LeafNode("No tags")
+        test_case = "No tags"
+        self.assertEqual(node.to_html(), test_case)
+
 
 if __name__ == "__main__":
     unittest.main()
