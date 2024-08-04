@@ -1,5 +1,4 @@
 import unittest
-from project_types import HTMLTag, TextType
 from htmlnode import HTMLNode, LeafNode
 
 
@@ -69,6 +68,8 @@ class TestLeafNode(unittest.TestCase):
 
     def test_to_html_no_props(self):
         node = LeafNode("No props", "p")
+        test_case = "<p>No props</p>"
+        self.assertEqual(node.to_html(), test_case)
 
     def test_to_html_no_tag(self):
         node = LeafNode("No tags")

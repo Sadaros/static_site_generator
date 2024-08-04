@@ -11,7 +11,7 @@ class TextNode:
         self.text_type = text_type
         self.url = url
 
-    def __eq__(self, target: "TextNode") -> bool:
+    def __eq__(self, target: "TextNode") -> bool:  # type: ignore
         return (
             self.text == target.text
             and self.text_type == target.text_type
