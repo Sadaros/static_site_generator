@@ -8,4 +8,7 @@ type HTMLTag = Literal[
     "i",
     "h1",
     "div",
+    "ul",
+    "ol",
+    "li",
 ]
