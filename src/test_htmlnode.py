@@ -1,5 +1,5 @@
 import unittest
-from htmlnode import HTMLNode, LeafNode, ParentNode
+from htmlnode import LeafNode, ParentNode
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -57,7 +57,7 @@ class TestParentNode(unittest.TestCase):
         node = ParentNode([LeafNode("test", "p"), LeafNode("case", "p")], "div")
         self.assertEqual(
             repr(node),
-            'ParentNode(tag = div, value = None, children = [LeafNode(p, "test", None, None), LeafNode(p, "case", None, None)], None)',
+            'ParentNode(div, None, [LeafNode(p, "test", [], None), LeafNode(p, "case", [], None)], None)',
         )
 
     def test_props_to_html(self):
@@ -82,27 +82,29 @@ class TestParentNode(unittest.TestCase):
         )
 
     def test_to_html_nested(self):
-        leaf_node = LeafNode("test", "p")
-        parent_nodes: list[LeafNode | ParentNode] = [
-            ParentNode("div", [leaf_node]),
-            ParentNode("div", [ParentNode("div", [leaf_node])]),
+        leaf_node = LeafNode("LeafNode", "p")
+        leaf_node2 = LeafNode("LeafNode2", "p")
+        parent_nodes: list[ParentNode] = [
+            ParentNode([leaf_node], "div"),
+            ParentNode([ParentNode([leaf_node2], "li")], "div"),
         ]
-        node = ParentNode("span", parent_nodes)
+        node = ParentNode(parent_nodes, "span")
+
         self.assertEqual(
             node.to_html(),
-            "<span><div><p>test</p></div><div><div><p>test</p></div></div></span>",
+            "<span><div><p>LeafNode</p></div><div><li><p>LeafNode2</p></li></div></span>",
         )
 
 
 class TestParentNodeEdgeCases(unittest.TestCase):
     def test_empty_tag(self):
         with self.assertRaises(ValueError):
-            node = ParentNode("", [LeafNode("Test", "p")])  # type: ignore
+            node = ParentNode([LeafNode("Test", "p")], "")  # type: ignore
             node.to_html()
 
     def test_no_children(self):
         with self.assertRaises(ValueError):
-            node = ParentNode("div", [])  # type: ignore
+            node = ParentNode([], "div")  # type: ignore
             node.to_html()
 
     def test_invalid_children(self):
@@ -110,20 +112,20 @@ class TestParentNodeEdgeCases(unittest.TestCase):
             pass
 
         with self.assertRaises(TypeError):
-            node = ParentNode("div", [NotAnHTMLNode()])  # type: ignore
+            node = ParentNode([NotAnHTMLNode()], "div")  # type: ignore
             node.to_html()
 
     def test_deeply_nested_parent_node(self):
         nested_child = LeafNode("deep text", "p")
         for _ in range(100):  # Testing deep nesting
-            nested_child = ParentNode("div", [nested_child])
-        node = ParentNode("span", [nested_child])
+            nested_child = ParentNode([nested_child], "div")
+        node = ParentNode([nested_child], "span")
         self.assertTrue(node.to_html().startswith("<span>"))
 
     def test_special_chars_in_props(self):
         node = ParentNode(
-            "div",
             [LeafNode("test", "p")],
+            "div",
             {"data-info": "some<>info", "style": "color: red;"},
         )
         self.assertEqual(
