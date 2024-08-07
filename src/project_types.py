@@ -11,4 +11,5 @@ type HTMLTag = Literal[
     "ul",
     "ol",
     "li",
+    "span",
 ]

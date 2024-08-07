@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Sequence, Any
+from typing import Optional, Sequence
 from project_types import HTMLTag
+import html
 
 
 class HTMLNode(ABC):
@@ -16,7 +17,9 @@ class HTMLNode(ABC):
         self.children = children
         self.props = props
 
-    def __eq__(self, target: "HTMLNode") -> bool:  # type: ignore
+    def __eq__(self, target: object) -> bool:
+        if not isinstance(target, HTMLNode):
+            return False
         return (
             self.tag == target.tag
             and self.value == target.value
@@ -25,10 +28,11 @@ class HTMLNode(ABC):
         )
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({self.tag}, "{self.value}", {self.children}, {self.props})'
+        repr_value = f'"{self.value}"' if self.value is not None else "None"
+        return f"{self.__class__.__name__}({self.tag}, {repr_value}, {self.children}, {self.props})"
 
     @abstractmethod
-    def to_html(self) -> Any:
+    def to_html(self) -> str:
         raise NotImplementedError
 
     def props_to_html(self) -> str:
@@ -36,7 +40,7 @@ class HTMLNode(ABC):
             return ""
         props_string: str = ""
         for k, v in self.props.items():
-            props_string += f' {k}="{v}"'
+            props_string += f' {k}="{str(html.escape(v))}"'
         return props_string
 
 
@@ -62,15 +66,15 @@ class LeafNode(HTMLNode):
 class ParentNode(HTMLNode):
     def __init__(
         self,
-        children: list["ParentNode | LeafNode"],
-        tag: Optional[HTMLTag] = None,
+        children: Sequence["ParentNode | LeafNode"],
+        tag: HTMLTag,
         props: Optional[dict[str, str]] = None,
     ) -> None:
         super().__init__(tag, None, children, props)
         self.value = None
 
     def to_html(self) -> str:
-        if self.tag is None:
+        if not self.tag:
             raise ValueError("All ParentNodes must have a tag")
         if not self.children:
             raise ValueError("All ParentNode must have children")
@@ -79,6 +83,8 @@ class ParentNode(HTMLNode):
 
         output = f"<{self.tag}{html_props}>"
         for node in self.children:
+            if not isinstance(node, HTMLNode):  # type: ignore
+                raise TypeError(f"{repr(node)} is not a valid type for child list")
             output += node.to_html()
         output += f"</{self.tag}>"
         return output
