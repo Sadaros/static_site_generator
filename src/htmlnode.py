@@ -80,7 +80,6 @@ class ParentNode(HTMLNode):
             raise ValueError("All ParentNode must have children")
 
         html_props = self.props_to_html()
-
         output = f"<{self.tag}{html_props}>"
         for node in self.children:
             if not isinstance(node, HTMLNode):  # type: ignore
