@@ -14,6 +14,9 @@ def split_nodes_delimiter(
         except AttributeError:
             new_nodes.append(node)
             continue
+        if node.text == "":
+            new_nodes.append(node)
+            continue
         sub_string = node.text.split(delimiter)
         if len(sub_string) % 2 == 0:
             raise ValueError("matching delimiter not found, invalid markdown")
