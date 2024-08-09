@@ -110,8 +110,20 @@ class TestMarkdownLinkImageExtractor(unittest.TestCase):
         result = [("image", "logo.png")]
         self.assertEqual(image_tuple, result)
 
+    def test_multiple_images(self):
+        image_tuple = extract_markdown_images(
+            "first ![image1](picture1.png) second ![image2](picture2.jpeg) trailing string"
+        )
+        result = [("image1", "picture1.png"), ("image2", "picture2.jpeg")]
+        self.assertEqual(image_tuple, result)
+
     def test_invalid_image(self):
         test_case = extract_markdown_images("String with no image")
+        result = []
+        self.assertEqual(test_case, result)
+
+    def test_invalid_link(self):
+        test_case = extract_markdown_links("String with no image")
         result = []
         self.assertEqual(test_case, result)
 
