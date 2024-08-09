@@ -1,6 +1,10 @@
 import unittest
 from textnode import TextNode
-from inline import split_nodes_delimiter
+from inline import (
+    split_nodes_delimiter,
+    extract_markdown_links,
+    extract_markdown_images,
+)
 
 
 class TestSplitNodesDelimiter(unittest.TestCase):
@@ -82,6 +86,34 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         node = TextNode("Start `code1 middle `code2` end", "text")
         with self.assertRaises(ValueError):
             split_nodes_delimiter([node], "`", "code")
+
+
+class TestMarkdownLinkImageExtractor(unittest.TestCase):
+    def test_valid_link(self):
+        link_tuple = extract_markdown_links(
+            "This is a string, with a [link](google.com) in it"
+        )
+        result = [("link", "google.com")]
+        self.assertEqual(link_tuple, result)
+
+    def test_multiple_links(self):
+        link_tuple = extract_markdown_links(
+            "first [link](google.com), second [link2](yahoo.com)"
+        )
+        result = [("link", "google.com"), ("link2", "yahoo.com")]
+        self.assertEqual(link_tuple, result)
+
+    def test_valid_image(self):
+        image_tuple = extract_markdown_images(
+            "This is a string with an ![image](logo.png)"
+        )
+        result = [("image", "logo.png")]
+        self.assertEqual(image_tuple, result)
+
+    def test_invalid_image(self):
+        test_case = extract_markdown_images("String with no image")
+        result = []
+        self.assertEqual(test_case, result)
 
 
 if __name__ == "__main__":
