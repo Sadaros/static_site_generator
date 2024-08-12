@@ -4,6 +4,8 @@ from inline import (
     split_nodes_delimiter,
     extract_markdown_links,
     extract_markdown_images,
+    split_nodes_image,
+    split_nodes_link,
 )
 
 
@@ -125,6 +127,76 @@ class TestMarkdownLinkImageExtractor(unittest.TestCase):
     def test_invalid_link(self):
         test_case = extract_markdown_links("String with no image")
         result = []
+        self.assertEqual(test_case, result)
+
+
+class TestSplitNodesImageLinks(unittest.TestCase):
+    def test_valid_image(self):
+        test_case = [
+            TextNode(
+                "This is a node with an ![image](google.com) embedded in it", "text"
+            )
+        ]
+        result = [
+            TextNode("This is a node with an ", "text"),
+            TextNode("image", "image", "google.com"),
+            TextNode(" embedded in it", "text"),
+        ]
+        self.assertEqual(result, split_nodes_image(test_case))
+
+    def test_valid_link(self):
+        test_case = [
+            TextNode(
+                "This is a node with a [clickable link](google.com) embedded in it",
+                "text",
+            )
+        ]
+        result = [
+            TextNode("This is a node with a ", "text"),
+            TextNode("clickable link", "link", "google.com"),
+            TextNode(" embedded in it", "text"),
+        ]
+        self.assertEqual(result, split_nodes_link(test_case))
+
+    def test_no_image(self):
+        test_case = split_nodes_image(
+            [TextNode("This is a long string with nothing in it", "text")]
+        )
+        result = [TextNode("This is a long string with nothing in it", "text")]
+        self.assertEqual(test_case, result)
+
+    def test_no_link(self):
+        test_case = split_nodes_link([TextNode("TestString.yaml", "text")])
+        result = [TextNode("TestString.yaml", "text")]
+        self.assertEqual(test_case, result)
+
+    def test_mixed_nodes_image(self):
+        test_case = split_nodes_image(
+            [
+                TextNode("This is a string with a ", "text"),
+                TextNode("bolded word", "bold"),
+                TextNode("and an ", "text"),
+                TextNode("![image](example.png) in it", "text"),
+            ]
+        )
+        result = [
+            TextNode("This is a string with a ", "text"),
+            TextNode("bolded word", "bold"),
+            TextNode("and an ", "text"),
+            TextNode("image", "image", "example.png"),
+            TextNode(" in it", "text"),
+        ]
+        self.assertEqual(test_case, result)
+
+    def test_multiple_images_in_same_node(self):
+        test_case = split_nodes_image(
+            [
+                TextNode(
+                    "The ![first](first.jpeg) and ![second](second.jpeg) image", "text"
+                )
+            ]
+        )
+        result = None
         self.assertEqual(test_case, result)
 
 
